@@ -1,0 +1,64 @@
+---
+title: "Assignment 1"
+author: "Anushka Rampay"
+date: "2024-02-04"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{R}
+# Source from: https://www.kaggle.com/datasets/mirichoi0218/insurance/data
+
+# Importing the data set
+library(readxl)
+Insurance_data <- read_excel("C:/Users/rampa/OneDrive/Desktop/Insurance_data.xlsx")
+head(Insurance_data)
+```
+
+
+```{R}
+# Display descriptive statistics for quantitative variables
+summary(Insurance_data$age)
+summary(Insurance_data$bmi)
+```
+
+
+```{R}
+# Display descriptive statistics for categorical variables
+table(Insurance_data$sex)
+table(Insurance_data$smoker)
+```
+
+
+```{R}
+#Transformation of one variable
+Insurance_data$age_squared <- Insurance_data$age^2
+
+```
+
+
+```{R}
+# Plot a histogram for the 'age' variable
+hist(Insurance_data$age, main = "Histogram of Age", xlab = "Age", col = "skyblue", border = "black")
+```
+
+
+```{R,include=TRUE}
+# Scatterplot of age against charges
+plot(Insurance_data$age, Insurance_data$charges,
+     main = "Scatterplot: Age vs Charges",
+     xlab = "Age", ylab = "Charges",
+     col = "darkgreen", pch = 16)
+```
+**Summary**
+
+As you get older, insurance costs go up. Different regions, like the Northwest, might have higher charges. Having kids or a higher BMI also makes insurance more expensive. Sometimes, younger people pay a lot due to factors like high BMI, having children, and living in the Northwest.
+
+
+
