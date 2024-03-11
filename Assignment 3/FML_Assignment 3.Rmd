@@ -1,0 +1,176 @@
+---
+title: "FML- Assignment 3"
+author: "Anushka Rampay"
+date: "03-08-2024"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(caret)
+library(e1071)
+library(ISLR)
+library(reshape2)
+```
+
+##### Loading Data Set Required
+```{r}
+
+setwd("C:/Users/rampa/OneDrive/Desktop/FML Assignments")
+Bank_Data <- read.csv("UniversalBank.csv")
+summary(Bank_Data)
+```
+
+***
+
+##### Conversion of variables into factor
+```{r}
+Bank_Data$Personal.Loan<-factor(Bank_Data$Personal.Loan)
+Bank_Data$Online<-factor(Bank_Data$Online)
+Bank_Data$CreditCard<-factor(Bank_Data$CreditCard)
+
+```
+***
+
+##### Splitting data into two sets for training and validation
+
+```{r}
+set.seed(1234)
+training<-createDataPartition(Bank_Data$Personal.Loan,p=0.6,list = FALSE)
+training_set<-Bank_Data[training,]
+validation_set<-Bank_Data[-training,]
+nrow(training_set)
+```
+
+```{r}
+nrow(validation_set)
+```
+***
+
+***Question-A***
+
+#### Create a pivot table for the training data with Online as a column variable, CC as a row variable, and Loan as a secondary row variable. The values inside the table should convey the count.
+
+```{r}
+pivot_table<-xtabs(~CreditCard+Personal.Loan+Online,data=training_set)
+
+ftable(pivot_table)
+```
+***
+
+***Question- B***
+
+#### Consider the task of classifying a customer who owns a bank credit card and is actively using online banking services. Looking at the pivot table, what is the probability that this customer will accept the loan offer? [This is the probability of loan acceptance (Loan = 1) conditional on having a bank credit card (CC = 1) and being an active user of online banking services (Online = 1)].
+
+```{r}
+
+# From the above Pivot Table 46 represents the count of customers who accepted the loan offer (Loan = 1) and also meet the criteria of having a bank credit card (CC = 1) and being active online users (Online = 1).
+
+# From the above Pivot Table 460 represents the count of customers who meet the criteria of having a bank credit card (CC = 1) and being active online users (Online = 1) but did not accept the loan offer (Loan = 0).
+
+46/(46+460)
+
+```
+***
+
+***Question - C***
+
+#### Create two separate pivot tables for the training data. One will have Loan (rows) as a function of Online (columns) and the other will have Loan (rows) as a function of CC
+
+```{r}
+table(Personal.Loan=training_set$Personal.Loan,Online=training_set$Online)
+
+```
+```{r}
+table(Personal.Loan=training_set$Personal.Loan,CreditCard=training_set$CreditCard)
+```
+```{r}
+table(Personal.Loan=training_set$Personal.Loan)
+
+```
+***
+
+***Question- D***
+
+#### Compute the following quantities [P(A | B) means “the probability ofA given B”]
+
+```{r}
+### i. P(CC = 1 | Loan = 1) (the proportion of credit card holders among the loan acceptors)
+
+Probability1=80/(80+208)
+Probability1
+
+```
+```{r}
+###ii. P(Online = 1 | Loan = 1)
+
+Probability2=179/(179+109)
+Probability2
+```
+
+```{r}
+### iii. P(Loan = 1) (the proportion of loan acceptors)
+
+Probability3=288/(288+2712)
+Probability3
+```
+```{r}
+### iv. P(CC = 1 | Loan = 0)
+
+Probability4=779/(779+1933)
+Probability4
+```
+
+```{r}
+### v.P(Online = 1 | Loan = 0)
+
+Probability5=1599/(1599+1113)
+Probability5
+```
+
+```{r}
+### vi. P(Loan = 0)
+
+Probability6=2712/(288+2712)
+Probability6
+
+```
+***
+
+***Question- E***
+
+#### Use the quantities computed above to compute the naive Bayes probability P(Loan = 1 | CC = 1, Online = 1).
+
+```{r}
+
+(Probability1*Probability2*Probability3)/((Probability1*Probability2*Probability3)+(Probability4*Probability5*Probability6))
+
+```
+***
+
+***Question- F***
+
+#### Compare this value with the one obtained from the pivot table in (B). Which is a more accurate estimate?
+
+##### Answer : According to the pivot table, the possibility is 0.1005587, and the naive Bayes probability is 0.1120411. According to Naive Bayes, characteristics don't affect each other. The chance from the pivot table seems to be more accurate now.
+
+***
+
+***Question- G***
+
+#### Which of the entries in this table are needed for computing P(Loan = 1 | CC = 1, Online = 1)? Run naive Bayes on the data. Examine the model output on training data, and find the entry that corresponds to P(Loan = 1 | CC = 1, Online = 1). Compare this to the number you obtained in (E).
+
+```{r}
+
+Naivebayes_model<-naiveBayes(Personal.Loan~CreditCard+Online,data = training_set)
+test <-data.frame(CreditCard=1,Online=1)
+test$CreditCard<-factor(test$CreditCard)
+test$Online<-factor(test$Online)
+predict(Naivebayes_model,test,type = 'raw')
+```
+
